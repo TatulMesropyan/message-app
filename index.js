@@ -1,12 +1,29 @@
 const express = require('express');
+const http = require('http');
+const { Server } = require("socket.io");
+const cors = require('cors');
 require('dotenv').config();
 
+
 const app = express();
+app.use(cors());
+const server = http.createServer(app);
+``
+const io = new Server(server,{
+    cors:{
+        origin:"http://localhost:3000",
+        methods:["GET","POST"]
+    }
+});
 
+app.get('/', (req, res) => {
+    res.send("You are on home page");
+});
 
-app.get('/',(req, res) => (
-	res.send('<h1>Hello world</h1>')
-));
+io.on('connection', (socket) => {
+    console.log(`${socket.id} user connected`);
+});
 
-app.listen(process.env.PORT,process.env.HOSTNAME, () => (
-		console.log(`Server running on port ${process.env.PORT}`)));
+server.listen(process.env.PORT, () => {
+    console.log(`Server running on ${process.env.PORT}`);
+});
