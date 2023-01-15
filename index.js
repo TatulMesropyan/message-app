@@ -8,9 +8,9 @@ require('dotenv').config();
 const app = express();
 app.use(cors());
 const server = http.createServer(app);
-``
+
 const io = new Server(server,{
-    cors:{
+    cors: {
         origin:"http://localhost:3000",
         methods:["GET","POST"]
     }
@@ -21,7 +21,15 @@ app.get('/', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-    console.log(`${socket.id} user connected`);
+    socket.on('join_room',(data) => {
+        console.log(`User with ID:${socket.id} joined room#${data}`);
+    })
+    socket.on('send_message',(data) => {
+        socket.to(data.roomID).emit("receive_message",data);
+    })
+    socket.on('disconnect',() => {
+        console.log(`${socket.id} disconnected`)
+    })
 });
 
 server.listen(process.env.PORT, () => {
